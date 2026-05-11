@@ -382,13 +382,16 @@ const LEVEL_RATIOS = [0.10, 0.27, 0.47, 0.68, 0.88];
 const RADII        = [17, 14, 13, 12, 11];
 
 function computeLayout() {
-  const W = svgEl.clientWidth  || 380;
-  const H = svgEl.clientHeight || 280;
+  // Sabit tuval boyutu: Telefon ekranında dalların sıkışmasını engeller, ağaç orantılı küçülür.
+  const W = 640; 
+  const H = 340; 
+  svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
   Object.keys(nodePos).forEach(k => delete nodePos[k]);
 
   function place(node, level, index, total) {
     if (!node || level >= LEVELS) return;
-    const margin = W < 500 ? 16 : 28;
+    const margin = 24;
     const avail  = W - margin * 2;
     const slot   = avail / total;
     const x = margin + slot * index + slot / 2;
@@ -403,10 +406,8 @@ function computeLayout() {
 function drawTree() {
   svgEl.innerHTML = '';
   computeLayout();
-  const W = svgEl.clientWidth || 380;
-  const small = W < 500;
 
-  /* edges */
+  /* dallar (edges) */
   Object.values(nodePos).forEach(({ x, y, r, level, node }) => {
     ['dot','dash'].forEach(dir => {
       const child = node[dir];
@@ -420,35 +421,35 @@ function drawTree() {
       const line = document.createElementNS(SVG_NS,'line');
       line.setAttribute('x1',sx); line.setAttribute('y1',sy);
       line.setAttribute('x2',ex); line.setAttribute('y2',ey);
-      line.setAttribute('stroke','#313130');
-      line.setAttribute('stroke-width', small ? '1' : '1.2');
+      line.setAttribute('stroke','#5c5c5a'); 
+      line.setAttribute('stroke-width', '1.2');
       line.id = 'edge-'+node.id+'-'+dir;
       svgEl.appendChild(line);
 
+      // Simgelerin çakışmasını engelleyen yeni sabit dışa itme hizalaması
       const mx=(sx+ex)/2, my=(sy+ey)/2;
-      const off = dir==='dot' ? -7 : 7;
-      const px=-dy/dist*off, py=dx/dist*off;
       const lbl = document.createElementNS(SVG_NS,'text');
-      lbl.setAttribute('x',mx+px); lbl.setAttribute('y',my+py);
+      lbl.setAttribute('x', dir === 'dot' ? mx - 8 : mx + 8); 
+      lbl.setAttribute('y', my - 5);
       lbl.setAttribute('text-anchor','middle');
       lbl.setAttribute('dominant-baseline','central');
-      lbl.setAttribute('font-size', small?'7':'8');
-      lbl.setAttribute('fill','#454540');
+      lbl.setAttribute('font-size', '11');
+      lbl.setAttribute('fill','#8b8782');
       lbl.setAttribute('font-family','Space Mono,monospace');
       lbl.textContent = dir==='dot' ? '·' : '—';
       svgEl.appendChild(lbl);
     });
   });
 
-  /* nodes */
+  /* düğümler (nodes) */
   Object.values(nodePos).forEach(({ x, y, r, node }) => {
     const g = document.createElementNS(SVG_NS,'g');
     g.id = 'node-g-'+node.id;
 
     const circ = document.createElementNS(SVG_NS,'circle');
     circ.setAttribute('cx',x); circ.setAttribute('cy',y); circ.setAttribute('r',r);
-    circ.setAttribute('fill','#2a2a28');
-    circ.setAttribute('stroke','#454542'); circ.setAttribute('stroke-width','1');
+    circ.setAttribute('fill','#383836');
+    circ.setAttribute('stroke','#6b6b66'); circ.setAttribute('stroke-width','1');
     circ.id = 'node-c-'+node.id;
     g.appendChild(circ);
 
@@ -460,7 +461,7 @@ function drawTree() {
       t.setAttribute('dominant-baseline','central');
       const fsize = node.id==='root' ? 9 : Math.max(7, r-(node.val&&node.val.length>1?4:3));
       t.setAttribute('font-size', fsize);
-      t.setAttribute('fill', node.id==='root' ? '#555' : '#c8c2b8');
+      t.setAttribute('fill', node.id==='root' ? '#999' : '#ffffff');
       t.setAttribute('font-weight','500');
       t.setAttribute('font-family','Space Mono,monospace');
       t.id = 'node-t-'+node.id;
@@ -478,10 +479,12 @@ function highlight(path) {
     const t  = document.getElementById('node-t-'+node.id);
     const ed = document.getElementById('edge-'+node.id+'-dot');
     const ea = document.getElementById('edge-'+node.id+'-dash');
-    if (c)  { c.setAttribute('fill','#2a2a28'); c.setAttribute('stroke','#454542'); c.setAttribute('stroke-width','1'); }
-    if (t)  t.setAttribute('fill', node.id==='root'?'#555':'#c8c2b8');
-    if (ed) { ed.setAttribute('stroke','#313130'); ed.setAttribute('stroke-width','1.2'); }
-    if (ea) { ea.setAttribute('stroke','#313130'); ea.setAttribute('stroke-width','1.2'); }
+    
+    // Buradaki varsayılan renkleri daha aydınlık olanlarla güncelledik
+    if (c)  { c.setAttribute('fill','#383836'); c.setAttribute('stroke','#6b6b66'); c.setAttribute('stroke-width','1'); }
+    if (t)  t.setAttribute('fill', node.id==='root'?'#999':'#ffffff');
+    if (ed) { ed.setAttribute('stroke','#5c5c5a'); ed.setAttribute('stroke-width','1.2'); }
+    if (ea) { ea.setAttribute('stroke','#5c5c5a'); ea.setAttribute('stroke-width','1.2'); }
   });
 
   const rc = document.getElementById('node-c-root');
