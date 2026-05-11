@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
-  :root {
+:root {
     --bg:          #1f1f1e;
     --bg2:         #252523;
     --bg3:         #2d2d2b;
@@ -15,10 +15,11 @@
     --accent2:     #e8896a;
     --accent-dim:  rgba(217,119,87,0.13);
     --accent-glow: rgba(217,119,87,0.32);
-    --text:   #e8e2d8;
-    --text2:  #9a9590;
-    --text3:  #4e4b47;
-    --border: #313130;
+    /* Metin ve kenarlık renkleri daha okunaklı hale getirildi */
+    --text:   #ffffff; 
+    --text2:  #c2bcba; 
+    --text3:  #8b8782; 
+    --border: #4a4a49; 
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -228,18 +229,22 @@
     transition: background .1s;
   }
 
-  #legend {
+ #legend {
     display: flex;
-    gap: 18px;
+    flex-wrap: nowrap; /* Elemanların alt satıra geçip sırayı bozmasını kesin engeller */
+    gap: 12px;
     justify-content: center;
-    font-size: 10px;
-    color: var(--text3);
+    font-size: 11px; /* Okunabilirliği biraz artırdık */
+    color: var(--text2); /* Daha belirgin bir gri */
     font-family: 'Space Mono', monospace;
     margin-top: 6px;
   }
-  #legend span { display: flex; align-items: center; gap: 5px; }
-  .dot-sym  { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink:0; }
-  .dash-sym { width: 12px; height: 2.5px; border-radius: 2px; background: var(--accent); flex-shrink:0; }
+  #legend span { 
+    display: flex; 
+    align-items: center; 
+    gap: 5px; 
+    white-space: nowrap; /* Metnin kendi içinde kırılmasını önler */
+  }
 
   @keyframes ripple-anim {
     0%   { r: 0; opacity: .55; }
