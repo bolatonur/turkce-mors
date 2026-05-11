@@ -301,93 +301,96 @@
 </div>
 <script>
 /* ─────────────────────────────────────────────────────────────
-   TÜRKÇE FREKANS OPTİMİZE MOR AĞACI (MALİYET BAZLI)
-   Kural: En sık harf, zaman maliyeti (Nokta=1, Çizgi=3 birim) 
-          en düşük olan yola atanmıştır.
+   TÜRKÇE FREKANS OPTİMİZE MOR AĞACI (ÖZEL LİSTE)
+   Sıralama: A, E, İ, N, R, L, D, K, I, M, T, Y, U, S, B, O, Ü, Z, Ş, G, H, Ç, C, Ğ, V, P, Ö, F, J
 ───────────────────────────────────────────────────────────── */
 const tree = {
   val: null, id: 'root',
   dot: {
     val: 'A', id: '1_0',
     dot: {
-      val: 'E', id: '2_0',
+      val: 'İ', id: '2_0',
       dot: {
-        val: 'N', id: '3_0',
-        dot: { val: 'I',  id:'4_0',  dot:null, dash:null },
-        dash:{ val: 'Y',  id:'4_1',  dot:null, dash:null }
+        val: 'L', id: '3_0',
+        dot: {
+          val: 'T', id: '4_0',
+          dot: { val: 'Ş', id:'5_0', dot:null, dash:null },
+          dash:{ val: 'Ö', id:'5_1', dot:null, dash:null }
+        },
+        dash: {
+          val: 'B', id: '4_1',
+          dot: { val: 'F', id:'5_2', dot:null, dash:null },
+          dash: null
+        }
       },
-      dash:{
-        val: 'D', id: '3_1',
-        dot: { val: 'T',  id:'4_2',  dot:null, dash:null },
-        dash:{ val: 'Z',  id:'4_3',  dot:null, dash:null }
+      dash: {
+        val: 'K', id: '3_1',
+        dot: {
+          val: 'O', id: '4_2',
+          dot: { val: 'J', id:'5_3', dot:null, dash:null },
+          dash: null
+        },
+        dash: { val: 'H', id:'4_3', dot:null, dash:null }
       }
     },
-    dash:{
-      val: 'R', id: '2_1',
+    dash: {
+      val: 'N', id: '2_1',
       dot: {
-        val: 'K', id: '3_2',
-        dot: { val: 'S',  id:'4_4',  dot:null, dash:null },
-        dash:{ val: 'G',  id:'4_5',  dot:null, dash:null }
+        val: 'I', id: '3_2',
+        dot: { val: 'Ü', id:'4_4', dot:null, dash:null },
+        dash:{ val: 'Ç', id:'4_5', dot:null, dash:null }
       },
-      dash:{
-        val: 'O', id: '3_3',
-        dot: { val: 'H',  id:'4_6',  dot:null, dash:null },
-        dash:{ val: 'P',  id:'4_7',  dot:null, dash:null }
-      }
-    }
-  },
-  dash:{
-    val: 'İ', id: '1_1',
-    dot: {
-      val: 'L', id: '2_2',
-      dot: {
-        val: 'M', id: '3_4',
-        dot: { val: 'B',  id:'4_8',  dot:null, dash:null },
-        dash:{ val: 'Ç',  id:'4_9',  dot:null, dash:null }
-      },
-      dash:{
-        val: 'Ü', id: '3_5',
-        dot: { val: 'Ğ',  id:'4_10', dot:null, dash:null },
-        dash:{ val: 'Ö',  id:'4_11', dot:null, dash:null }
-      }
-    },
-    dash:{
-      val: 'U', id: '2_3',
-      dot: {
-        val: 'Ş', id: '3_6',
-        dot: { val: 'V',  id:'4_12', dot:null, dash:null },
-        dash:{ val: 'F',  id:'4_13', dot:null, dash:null }
-      },
-      dash:{
-        val: 'C', id: '3_7',
-        dot: { val: 'J',  id:'4_14', dot:null, dash:null },
+      dash: {
+        val: 'Y', id: '3_3',
+        dot: { val: 'C', id:'4_6', dot:null, dash:null },
         dash: null
       }
     }
+  },
+  dash: {
+    val: 'E', id: '1_1',
+    dot: {
+      val: 'R', id: '2_2',
+      dot: {
+        val: 'M', id: '3_4',
+        dot: { val: 'Z', id:'4_7', dot:null, dash:null },
+        dash:{ val: 'Ğ', id:'4_8', dot:null, dash:null }
+      },
+      dash: {
+        val: 'U', id: '3_5',
+        dot: { val: 'V', id:'4_9', dot:null, dash:null },
+        dash: null
+      }
+    },
+    dash: {
+      val: 'D', id: '2_3',
+      dot: {
+        val: 'S', id: '3_6',
+        dot: { val: 'P', id:'4_10', dot:null, dash:null },
+        dash: null
+      },
+      dash: { val: 'G', id: '3_7', dot:null, dash:null }
+    }
   }
 };
-
 /* ─── SVG Renderer ───────────────────────────────────────── */
 const SVG_NS  = 'http://www.w3.org/2000/svg';
 const svgEl   = document.getElementById('tree-svg');
 const nodePos = {};
 
-const LEVELS       = 5;
-const LEVEL_RATIOS = [0.10, 0.27, 0.47, 0.68, 0.88];
-// Mobilde ağaç esneyip küçülünce harflerin okunabilmesi için yuvarlakları biraz büyüttük
-const RADII        = [24, 21, 19, 17, 15]; 
+const LEVELS       = 6; 
+const LEVEL_RATIOS = [0.08, 0.24, 0.42, 0.60, 0.78, 0.95]; 
+// Tuval (W) büyüdüğü için düğüm boyutlarını da orantılı olarak büyüttük
+const RADII        = [36, 32, 28, 24, 21, 18]; 
 
 function computeLayout() {
-  // Ağacı saran div'in o anki gerçek piksel boyutlarını al
   const actualW = svgEl.clientWidth || 380;
   const actualH = svgEl.clientHeight || 280;
 
-  // Yatayda düğümlerin sıkışmaması için baz alacağımız genişlik birimi
-  const W = 640; 
+  // YATAY BOŞLUĞU AÇAN KISIM: Sanal tuval genişliğini 640'tan 1200'e çıkardık!
+  const W = 1200; 
   
-  // Yüksekliği ekranın dikey/yatay oranına göre hesaplıyoruz.
-  // Ekran dikeyde ne kadar darsa (örn: telefon), H o kadar artar ve dallar o kadar uzar!
-  const H = actualH > 0 ? W * (actualH / actualW) : 340;
+  const H = actualH > 0 ? W * (actualH / actualW) : 600;
 
   svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
 
@@ -395,11 +398,10 @@ function computeLayout() {
 
   function place(node, level, index, total) {
     if (!node || level >= LEVELS) return;
-    const margin = 24;
+    const margin = 30; // Yan kenar boşluğu
     const avail  = W - margin * 2;
     const slot   = avail / total;
     const x = margin + slot * index + slot / 2;
-    // Ağacın dikey pozisyonları esneyen H değerine oranla yerleştirilir
     const y = H * LEVEL_RATIOS[level]; 
     nodePos[node.id] = { x, y, r: RADII[level], level, node };
     if (node.dot)  place(node.dot,  level+1, index*2,   total*2);
@@ -427,18 +429,18 @@ function drawTree() {
       line.setAttribute('x1',sx); line.setAttribute('y1',sy);
       line.setAttribute('x2',ex); line.setAttribute('y2',ey);
       line.setAttribute('stroke','#5c5c5a'); 
-      line.setAttribute('stroke-width', '1.5'); // Çizgiler kalınlaştırıldı
+      line.setAttribute('stroke-width', '2.5'); // Çizgiler W oranında kalınlaştı
       line.id = 'edge-'+node.id+'-'+dir;
       svgEl.appendChild(line);
 
       const mx=(sx+ex)/2, my=(sy+ey)/2;
       const lbl = document.createElementNS(SVG_NS,'text');
-      // Simgelerin çakışmasını engelleyen dışa itme mesafesini biraz daha açtık
-      lbl.setAttribute('x', dir === 'dot' ? mx - 10 : mx + 10); 
-      lbl.setAttribute('y', my - 6);
+      // Simgelerin dışa itme mesafesi W oranında artırıldı ki çizgiye değmesin
+      lbl.setAttribute('x', dir === 'dot' ? mx - 16 : mx + 16); 
+      lbl.setAttribute('y', my - 8);
       lbl.setAttribute('text-anchor','middle');
       lbl.setAttribute('dominant-baseline','central');
-      lbl.setAttribute('font-size', '14'); // Yoldaki . ve _ simgeleri büyütüldü
+      lbl.setAttribute('font-size', '22'); // Nokta/çizgi simge boyutu büyütüldü
       lbl.setAttribute('fill','#8b8782');
       lbl.setAttribute('font-family','Space Mono,monospace');
       lbl.textContent = dir==='dot' ? '·' : '—';
@@ -454,7 +456,7 @@ function drawTree() {
     const circ = document.createElementNS(SVG_NS,'circle');
     circ.setAttribute('cx',x); circ.setAttribute('cy',y); circ.setAttribute('r',r);
     circ.setAttribute('fill','#383836');
-    circ.setAttribute('stroke','#6b6b66'); circ.setAttribute('stroke-width','1.5');
+    circ.setAttribute('stroke','#6b6b66'); circ.setAttribute('stroke-width','2');
     circ.id = 'node-c-'+node.id;
     g.appendChild(circ);
 
@@ -464,8 +466,7 @@ function drawTree() {
       t.setAttribute('x',x); t.setAttribute('y',y);
       t.setAttribute('text-anchor','middle');
       t.setAttribute('dominant-baseline','central');
-      // Harf boyutu artık yuvarlağın alanına (yarıçapına) göre orantılı hesaplanıyor
-      const fsize = node.id==='root' ? 14 : Math.round(r * 0.65);
+      const fsize = node.id==='root' ? 24 : Math.round(r * 0.65);
       t.setAttribute('font-size', fsize);
       t.setAttribute('fill', node.id==='root' ? '#999' : '#ffffff');
       t.setAttribute('font-weight','500');
