@@ -301,70 +301,65 @@
 </div>
 <script>
 /* ─────────────────────────────────────────────────────────────
-   TÜRKÇE FREKANS OPTİMİZE MOR AĞACI
-   Kaynak: Türkçe harf sıklığı sıralaması (CSV)
-   Kural: En sık harf en az tıklamada ulaşılır (BFS seviye ataması)
-
-   Seviye 1 (1 tıklama): A(·=11.92%)  E(–=8.91%)
-   Seviye 2 (2 tıklama): İ(··)  N(·–)  R(–·)  L(––)
-   Seviye 3 (3 tıklama): K D U M I T O Ü
-   Seviye 4 (4 tıklama): H S B Y Ğ Z Ç Ş G V C Ö P F J
+   TÜRKÇE FREKANS OPTİMİZE MOR AĞACI (MALİYET BAZLI)
+   Kural: En sık harf, zaman maliyeti (Nokta=1, Çizgi=3 birim) 
+          en düşük olan yola atanmıştır.
 ───────────────────────────────────────────────────────────── */
 const tree = {
   val: null, id: 'root',
   dot: {
     val: 'A', id: '1_0',
     dot: {
-      val: 'İ', id: '2_0',
+      val: 'E', id: '2_0',
       dot: {
-        val: 'K', id: '3_0',
-        dot: { val: 'H',  id:'4_0',  dot:null, dash:null },
-        dash:{ val: 'S',  id:'4_1',  dot:null, dash:null }
+        val: 'N', id: '3_0',
+        dot: { val: 'I',  id:'4_0',  dot:null, dash:null },
+        dash:{ val: 'Y',  id:'4_1',  dot:null, dash:null }
       },
       dash:{
         val: 'D', id: '3_1',
-        dot: { val: 'B',  id:'4_2',  dot:null, dash:null },
-        dash:{ val: 'Y',  id:'4_3',  dot:null, dash:null }
+        dot: { val: 'T',  id:'4_2',  dot:null, dash:null },
+        dash:{ val: 'Z',  id:'4_3',  dot:null, dash:null }
       }
     },
     dash:{
-      val: 'N', id: '2_1',
+      val: 'R', id: '2_1',
       dot: {
-        val: 'U', id: '3_2',
-        dot: { val: 'Ğ',  id:'4_4',  dot:null, dash:null },
-        dash:{ val: 'Z',  id:'4_5',  dot:null, dash:null }
+        val: 'K', id: '3_2',
+        dot: { val: 'S',  id:'4_4',  dot:null, dash:null },
+        dash:{ val: 'G',  id:'4_5',  dot:null, dash:null }
       },
       dash:{
-        val: 'M', id: '3_3',
-        dot: { val: 'Ç',  id:'4_6',  dot:null, dash:null },
-        dash:{ val: 'Ş',  id:'4_7',  dot:null, dash:null }
+        val: 'O', id: '3_3',
+        dot: { val: 'H',  id:'4_6',  dot:null, dash:null },
+        dash:{ val: 'P',  id:'4_7',  dot:null, dash:null }
       }
     }
   },
   dash:{
-    val: 'E', id: '1_1',
+    val: 'İ', id: '1_1',
     dot: {
-      val: 'R', id: '2_2',
+      val: 'L', id: '2_2',
       dot: {
-        val: 'I', id: '3_4',
-        dot: { val: 'G',  id:'4_8',  dot:null, dash:null },
-        dash:{ val: 'V',  id:'4_9',  dot:null, dash:null }
+        val: 'M', id: '3_4',
+        dot: { val: 'B',  id:'4_8',  dot:null, dash:null },
+        dash:{ val: 'Ç',  id:'4_9',  dot:null, dash:null }
       },
       dash:{
-        val: 'T', id: '3_5',
-        dot: { val: 'C',  id:'4_10', dot:null, dash:null },
+        val: 'Ü', id: '3_5',
+        dot: { val: 'Ğ',  id:'4_10', dot:null, dash:null },
         dash:{ val: 'Ö',  id:'4_11', dot:null, dash:null }
       }
     },
     dash:{
-      val: 'L', id: '2_3',
+      val: 'U', id: '2_3',
       dot: {
-        val: 'O', id: '3_6',
-        dot: { val: 'P',  id:'4_12', dot:null, dash:null },
+        val: 'Ş', id: '3_6',
+        dot: { val: 'V',  id:'4_12', dot:null, dash:null },
         dash:{ val: 'F',  id:'4_13', dot:null, dash:null }
       },
       dash:{
-        val: 'Ü', id: '3_7',
+        val: 'C', id: '3_7',
         dot: { val: 'J',  id:'4_14', dot:null, dash:null },
         dash: null
       }
