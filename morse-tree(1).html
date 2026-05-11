@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mors Ağacı — TR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #1f1f1e;
+    --bg2:         #252523;
+    --bg3:         #2d2d2b;
+    --accent:      #d97757;
+    --accent2:     #e8896a;
+    --accent-dim:  rgba(217,119,87,0.13);
+    --accent-glow: rgba(217,119,87,0.32);
+    --text:   #e8e2d8;
+    --text2:  #9a9590;
+    --text3:  #4e4b47;
+    --border: #313130;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    height: 100%;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  body {
+    height: 100%;
+    min-height: 100dvh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  #app {
+    height: 100dvh;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 14px;
+  }
+
+  /* HEADER */
+  #header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0 9px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  #logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: .12em;
+  }
+  #logo span { color: var(--text3); font-weight: 400; }
+  #header-hint {
+    font-size: 10px;
+    color: var(--text3);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: .05em;
+  }
+
+  /* OUTPUT */
+  #output-wrap {
+    padding: 8px 0 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+  #output-text {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(18px, 4vw, 28px);
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: .13em;
+    min-height: 32px;
+    line-height: 1.25;
+    word-break: break-all;
+  }
+  .cursor {
+    display: inline-block;
+    width: 2px;
+    height: .85em;
+    background: var(--accent);
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  #morse-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 18px;
+  }
+  #morse-preview {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: .28em;
+    min-width: 40px;
+  }
+  #status-msg {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: .04em;
+  }
+
+  /* TREE */
+  #tree-wrap {
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    min-height: 0;
+  }
+  #tree-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* CONTROLS */
+  #controls-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0 10px;
+    gap: 0;
+    flex-shrink: 0;
+  }
+
+  #secondary-buttons {
+    display: flex;
+    width: 100%;
+    max-width: 420px;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .side-btn {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .06em;
+    padding: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .13s, color .13s, transform .08s;
+    text-transform: uppercase;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  .side-btn:active { background: #3a3a38; color: var(--text); transform: scale(.95); }
+
+  #tap-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #btn-tap {
+    width: clamp(74px, 18vw, 88px);
+    height: clamp(74px, 18vw, 88px);
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(12px, 3.5vw, 15px);
+    font-weight: 700;
+    letter-spacing: .1em;
+    cursor: pointer;
+    position: relative;
+    transition: background .08s, transform .08s, box-shadow .1s;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    box-shadow: 0 0 0 0 var(--accent-glow);
+  }
+  #btn-tap::before {
+    content: '';
+    position: absolute;
+    inset: -7px;
+    border-radius: 50%;
+    border: 1.5px solid var(--accent-dim);
+    transition: inset .12s, border-color .12s;
+    pointer-events: none;
+  }
+  #btn-tap.pressing {
+    background: #b55e3c;
+    transform: scale(.91);
+    box-shadow: 0 0 0 14px var(--accent-dim);
+  }
+  #btn-tap.pressing::before { inset: -11px; border-color: var(--accent-glow); }
+
+  #press-indicator {
+    height: 3px;
+    width: clamp(100px, 28vw, 150px);
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  #press-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: background .1s;
+  }
+
+  #legend {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--text3);
+    font-family: 'Space Mono', monospace;
+    margin-top: 6px;
+  }
+  #legend span { display: flex; align-items: center; gap: 5px; }
+  .dot-sym  { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink:0; }
+  .dash-sym { width: 12px; height: 2.5px; border-radius: 2px; background: var(--accent); flex-shrink:0; }
+
+  @keyframes ripple-anim {
+    0%   { r: 0; opacity: .55; }
+    100% { r: 26; opacity: 0;  }
+  }
+  .ripple-c { animation: ripple-anim .45s ease-out forwards; }
+
+  @media (max-height: 480px) {
+    #header  { padding: 6px 0; }
+    #output-wrap { padding: 4px 0 2px; }
+    #controls-wrap { padding: 5px 0 6px; }
+    #secondary-buttons { margin-bottom: 6px; }
+    .side-btn { padding: 7px 0; font-size: 11px; }
+    #legend { margin-top: 4px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header id="header">
+    <div id="logo">MORSE<span>/TR</span></div>
+    <div id="header-hint">· kısa &nbsp;|&nbsp; – uzun basım</div>
+  </header>
+
+  <div id="output-wrap">
+    <div id="output-text"><span class="cursor"></span></div>
+    <div id="morse-row">
+      <div id="morse-preview"></div>
+      <div id="status-msg">TAP butonuna basın</div>
+    </div>
+  </div>
+
+  <div id="tree-wrap">
+    <svg id="tree-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+
+  <div id="controls-wrap">
+    <div id="secondary-buttons">
+      <button class="side-btn" id="btn-backspace">⌫</button>
+      <button class="side-btn" id="btn-space">BOŞLUK</button>
+      <button class="side-btn" id="btn-clear">SİL</button>
+    </div>
+    <div id="tap-area">
+      <button id="btn-tap">TAP</button>
+      <div id="press-indicator"><div id="press-bar"></div></div>
+    </div>
+    <div id="legend">
+      <span><span class="dot-sym"></span>Sol dal = Nokta</span>
+      <span><span class="dash-sym"></span>Sağ dal = Çizgi</span>
+    </div>
+  </div>
+
+</div>
+<script>
+/* ─────────────────────────────────────────────────────────────
+   TÜRKÇE FREKANS OPTİMİZE MOR AĞACI
+   Kaynak: Türkçe harf sıklığı sıralaması (CSV)
+   Kural: En sık harf en az tıklamada ulaşılır (BFS seviye ataması)
+
+   Seviye 1 (1 tıklama): A(·=11.92%)  E(–=8.91%)
+   Seviye 2 (2 tıklama): İ(··)  N(·–)  R(–·)  L(––)
+   Seviye 3 (3 tıklama): K D U M I T O Ü
+   Seviye 4 (4 tıklama): H S B Y Ğ Z Ç Ş G V C Ö P F J
+───────────────────────────────────────────────────────────── */
+const tree = {
+  val: null, id: 'root',
+  dot: {
+    val: 'A', id: '1_0',
+    dot: {
+      val: 'İ', id: '2_0',
+      dot: {
+        val: 'K', id: '3_0',
+        dot: { val: 'H',  id:'4_0',  dot:null, dash:null },
+        dash:{ val: 'S',  id:'4_1',  dot:null, dash:null }
+      },
+      dash:{
+        val: 'D', id: '3_1',
+        dot: { val: 'B',  id:'4_2',  dot:null, dash:null },
+        dash:{ val: 'Y',  id:'4_3',  dot:null, dash:null }
+      }
+    },
+    dash:{
+      val: 'N', id: '2_1',
+      dot: {
+        val: 'U', id: '3_2',
+        dot: { val: 'Ğ',  id:'4_4',  dot:null, dash:null },
+        dash:{ val: 'Z',  id:'4_5',  dot:null, dash:null }
+      },
+      dash:{
+        val: 'M', id: '3_3',
+        dot: { val: 'Ç',  id:'4_6',  dot:null, dash:null },
+        dash:{ val: 'Ş',  id:'4_7',  dot:null, dash:null }
+      }
+    }
+  },
+  dash:{
+    val: 'E', id: '1_1',
+    dot: {
+      val: 'R', id: '2_2',
+      dot: {
+        val: 'I', id: '3_4',
+        dot: { val: 'G',  id:'4_8',  dot:null, dash:null },
+        dash:{ val: 'V',  id:'4_9',  dot:null, dash:null }
+      },
+      dash:{
+        val: 'T', id: '3_5',
+        dot: { val: 'C',  id:'4_10', dot:null, dash:null },
+        dash:{ val: 'Ö',  id:'4_11', dot:null, dash:null }
+      }
+    },
+    dash:{
+      val: 'L', id: '2_3',
+      dot: {
+        val: 'O', id: '3_6',
+        dot: { val: 'P',  id:'4_12', dot:null, dash:null },
+        dash:{ val: 'F',  id:'4_13', dot:null, dash:null }
+      },
+      dash:{
+        val: 'Ü', id: '3_7',
+        dot: { val: 'J',  id:'4_14', dot:null, dash:null },
+        dash: null
+      }
+    }
+  }
+};
+
+/* ─── SVG Renderer ───────────────────────────────────────── */
+const SVG_NS  = 'http://www.w3.org/2000/svg';
+const svgEl   = document.getElementById('tree-svg');
+const nodePos = {};
+
+const LEVELS       = 5;
+const LEVEL_RATIOS = [0.10, 0.27, 0.47, 0.68, 0.88];
+const RADII        = [17, 14, 13, 12, 11];
+
+function computeLayout() {
+  const W = svgEl.clientWidth  || 380;
+  const H = svgEl.clientHeight || 280;
+  Object.keys(nodePos).forEach(k => delete nodePos[k]);
+
+  function place(node, level, index, total) {
+    if (!node || level >= LEVELS) return;
+    const margin = W < 500 ? 16 : 28;
+    const avail  = W - margin * 2;
+    const slot   = avail / total;
+    const x = margin + slot * index + slot / 2;
+    const y = H * LEVEL_RATIOS[level];
+    nodePos[node.id] = { x, y, r: RADII[level], level, node };
+    if (node.dot)  place(node.dot,  level+1, index*2,   total*2);
+    if (node.dash) place(node.dash, level+1, index*2+1, total*2);
+  }
+  place(tree, 0, 0, 1);
+}
+
+function drawTree() {
+  svgEl.innerHTML = '';
+  computeLayout();
+  const W = svgEl.clientWidth || 380;
+  const small = W < 500;
+
+  /* edges */
+  Object.values(nodePos).forEach(({ x, y, r, level, node }) => {
+    ['dot','dash'].forEach(dir => {
+      const child = node[dir];
+      if (!child || !nodePos[child.id]) return;
+      const { x:cx, y:cy, r:cr } = nodePos[child.id];
+      const dx = cx-x, dy = cy-y, dist = Math.hypot(dx,dy);
+      if (!dist) return;
+      const sx = x  + dx/dist*r,   sy = y  + dy/dist*r;
+      const ex = cx - dx/dist*cr,  ey = cy - dy/dist*cr;
+
+      const line = document.createElementNS(SVG_NS,'line');
+      line.setAttribute('x1',sx); line.setAttribute('y1',sy);
+      line.setAttribute('x2',ex); line.setAttribute('y2',ey);
+      line.setAttribute('stroke','#313130');
+      line.setAttribute('stroke-width', small ? '1' : '1.2');
+      line.id = 'edge-'+node.id+'-'+dir;
+      svgEl.appendChild(line);
+
+      const mx=(sx+ex)/2, my=(sy+ey)/2;
+      const off = dir==='dot' ? -7 : 7;
+      const px=-dy/dist*off, py=dx/dist*off;
+      const lbl = document.createElementNS(SVG_NS,'text');
+      lbl.setAttribute('x',mx+px); lbl.setAttribute('y',my+py);
+      lbl.setAttribute('text-anchor','middle');
+      lbl.setAttribute('dominant-baseline','central');
+      lbl.setAttribute('font-size', small?'7':'8');
+      lbl.setAttribute('fill','#454540');
+      lbl.setAttribute('font-family','Space Mono,monospace');
+      lbl.textContent = dir==='dot' ? '·' : '—';
+      svgEl.appendChild(lbl);
+    });
+  });
+
+  /* nodes */
+  Object.values(nodePos).forEach(({ x, y, r, node }) => {
+    const g = document.createElementNS(SVG_NS,'g');
+    g.id = 'node-g-'+node.id;
+
+    const circ = document.createElementNS(SVG_NS,'circle');
+    circ.setAttribute('cx',x); circ.setAttribute('cy',y); circ.setAttribute('r',r);
+    circ.setAttribute('fill','#2a2a28');
+    circ.setAttribute('stroke','#454542'); circ.setAttribute('stroke-width','1');
+    circ.id = 'node-c-'+node.id;
+    g.appendChild(circ);
+
+    const label = node.val || (node.id==='root' ? '★' : '');
+    if (label) {
+      const t = document.createElementNS(SVG_NS,'text');
+      t.setAttribute('x',x); t.setAttribute('y',y);
+      t.setAttribute('text-anchor','middle');
+      t.setAttribute('dominant-baseline','central');
+      const fsize = node.id==='root' ? 9 : Math.max(7, r-(node.val&&node.val.length>1?4:3));
+      t.setAttribute('font-size', fsize);
+      t.setAttribute('fill', node.id==='root' ? '#555' : '#c8c2b8');
+      t.setAttribute('font-weight','500');
+      t.setAttribute('font-family','Space Mono,monospace');
+      t.id = 'node-t-'+node.id;
+      t.textContent = label;
+      g.appendChild(t);
+    }
+    svgEl.appendChild(g);
+  });
+}
+
+/* ─── Highlight ──────────────────────────────────────────── */
+function highlight(path) {
+  Object.values(nodePos).forEach(({ node }) => {
+    const c  = document.getElementById('node-c-'+node.id);
+    const t  = document.getElementById('node-t-'+node.id);
+    const ed = document.getElementById('edge-'+node.id+'-dot');
+    const ea = document.getElementById('edge-'+node.id+'-dash');
+    if (c)  { c.setAttribute('fill','#2a2a28'); c.setAttribute('stroke','#454542'); c.setAttribute('stroke-width','1'); }
+    if (t)  t.setAttribute('fill', node.id==='root'?'#555':'#c8c2b8');
+    if (ed) { ed.setAttribute('stroke','#313130'); ed.setAttribute('stroke-width','1.2'); }
+    if (ea) { ea.setAttribute('stroke','#313130'); ea.setAttribute('stroke-width','1.2'); }
+  });
+
+  const rc = document.getElementById('node-c-root');
+  if (rc && path.length===0) {
+    rc.setAttribute('stroke','#d97757'); rc.setAttribute('stroke-width','1.5');
+    return;
+  }
+
+  let node = tree;
+  for (let i=0; i<path.length; i++) {
+    const dir  = path[i];
+    const edge = document.getElementById('edge-'+node.id+'-'+dir);
+    if (edge) { edge.setAttribute('stroke','#d97757'); edge.setAttribute('stroke-width','2'); }
+    node = node[dir];
+    if (!node) break;
+    const c = document.getElementById('node-c-'+node.id);
+    const t = document.getElementById('node-t-'+node.id);
+    const last = i===path.length-1;
+    if (c) {
+      c.setAttribute('fill',   last ? '#d97757' : '#4a2e20');
+      c.setAttribute('stroke','#d97757');
+      c.setAttribute('stroke-width', last?'2':'1.4');
+    }
+    if (t) t.setAttribute('fill', last?'#fff':'#e8c4a0');
+  }
+}
+
+function ripple(nodeId) {
+  const pos = nodePos[nodeId];
+  if (!pos) return;
+  const old = document.getElementById('rpl-'+nodeId);
+  if (old) old.remove();
+  const c = document.createElementNS(SVG_NS,'circle');
+  c.setAttribute('cx',pos.x); c.setAttribute('cy',pos.y); c.setAttribute('r',0);
+  c.setAttribute('fill','none'); c.setAttribute('stroke','#d97757'); c.setAttribute('stroke-width','1.5');
+  c.id = 'rpl-'+nodeId; c.classList.add('ripple-c');
+  svgEl.appendChild(c);
+  setTimeout(()=>c.remove(), 500);
+}
+
+/* ─── State ──────────────────────────────────────────────── */
+let current     = tree;
+let navPath     = [];
+let outputStr   = '';
+let morseSeq    = '';
+let pressStart  = null;
+let commitTimer = null;
+let pressRafId  = null;
+
+const $output = document.getElementById('output-text');
+const $morse  = document.getElementById('morse-preview');
+const $status = document.getElementById('status-msg');
+const $bar    = document.getElementById('press-bar');
+
+function updateOutput() {
+  const safe = outputStr.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  $output.innerHTML = safe + '<span class="cursor"></span>';
+}
+function updateMorse() { $morse.textContent = morseSeq; }
+function setStatus(m)  { $status.textContent = m; }
+
+function commit() {
+  if (current && current!==tree && current.val) {
+    outputStr += current.val;
+    updateOutput();
+  }
+  resetNav();
+}
+
+function resetNav() {
+  if (commitTimer) { clearTimeout(commitTimer); commitTimer=null; }
+  current=tree; navPath=[]; morseSeq='';
+  updateMorse();
+  highlight([]);
+  setStatus('TAP butonuna basın');
+}
+
+function navigate(dir) {
+  if (commitTimer) { clearTimeout(commitTimer); commitTimer=null; }
+  const next = current[dir];
+  if (!next) { setStatus('Bu yönde düğüm yok'); scheduleCommit(); return; }
+  navPath.push(dir);
+  current = next;
+  morseSeq += dir==='dot' ? '·' : '–';
+  updateMorse();
+  highlight(navPath);
+  ripple(current.id);
+  setStatus(dir==='dot'
+    ? `· nokta → ${current.val||'?'}`
+    : `– çizgi → ${current.val||'?'}`);
+  scheduleCommit();
+}
+
+function scheduleCommit() {
+  commitTimer = setTimeout(commit, 800);
+}
+
+/* ─── Press animation ────────────────────────────────────── */
+const THRESHOLD = 250;
+
+function startPress() {
+  const t0 = Date.now();
+  function frame() {
+    const e = Date.now()-t0;
+    const p = Math.min(100, e/THRESHOLD*100);
+    $bar.style.width = p+'%';
+    $bar.style.background = p>=100 ? '#e8896a' : '#d97757';
+    if (e < THRESHOLD+80) pressRafId = requestAnimationFrame(frame);
+  }
+  pressRafId = requestAnimationFrame(frame);
+}
+
+function stopPress() {
+  if (pressRafId) { cancelAnimationFrame(pressRafId); pressRafId=null; }
+  $bar.style.width='0%';
+}
+
+/* ─── TAP ────────────────────────────────────────────────── */
+const tapBtn = document.getElementById('btn-tap');
+
+tapBtn.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (pressStart!==null) return;
+  pressStart = Date.now();
+  tapBtn.classList.add('pressing');
+  if (commitTimer) { clearTimeout(commitTimer); commitTimer=null; }
+  startPress();
+  setStatus('Basılı tutuluyor…');
+}, {passive:false});
+
+function release(e) {
+  if (e) e.preventDefault();
+  if (pressStart===null) return;
+  tapBtn.classList.remove('pressing');
+  const dur = Date.now()-pressStart;
+  pressStart=null;
+  stopPress();
+  navigate(dur < THRESHOLD ? 'dot' : 'dash');
+}
+
+tapBtn.addEventListener('pointerup',     release, {passive:false});
+tapBtn.addEventListener('pointerleave',  e => { if (pressStart!==null) release(e); }, {passive:false});
+tapBtn.addEventListener('pointercancel', e => { if (pressStart!==null) release(e); }, {passive:false});
+tapBtn.addEventListener('contextmenu',   e => e.preventDefault());
+
+/* ─── Side buttons ───────────────────────────────────────── */
+document.getElementById('btn-space').addEventListener('click', () => {
+  if (commitTimer) { clearTimeout(commitTimer); commitTimer=null; }
+  if (current && current!==tree && current.val) outputStr += current.val;
+  outputStr += ' ';
+  updateOutput(); resetNav();
+});
+
+document.getElementById('btn-clear').addEventListener('click', () => {
+  if (commitTimer) { clearTimeout(commitTimer); commitTimer=null; }
+  outputStr=''; morseSeq='';
+  updateOutput(); updateMorse(); resetNav();
+});
+
+document.getElementById('btn-backspace').addEventListener('click', () => {
+  if (morseSeq.length>0 && current!==tree) {
+    if (commitTimer) { clearTimeout(commitTimer); commitTimer=null; }
+    navPath.pop();
+    morseSeq = morseSeq.slice(0,-1);
+    current = tree;
+    for (const d of navPath) current = current[d]||tree;
+    updateMorse(); highlight(navPath);
+    if (navPath.length>0) scheduleCommit();
+  } else {
+    outputStr = [...outputStr].slice(0,-1).join('');
+    updateOutput();
+  }
+});
+
+/* ─── Keyboard ───────────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  if (e.code==='Space') {
+    e.preventDefault();
+    if (!e.repeat && pressStart===null) {
+      pressStart=Date.now();
+      tapBtn.classList.add('pressing');
+      if (commitTimer) { clearTimeout(commitTimer); commitTimer=null; }
+      startPress();
+    }
+  }
+  if (e.code==='Backspace') document.getElementById('btn-backspace').click();
+});
+document.addEventListener('keyup', e => {
+  if (e.code==='Space') { e.preventDefault(); release(); }
+});
+
+/* ─── Init ───────────────────────────────────────────────── */
+let resizeTid;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTid);
+  resizeTid = setTimeout(()=>{ drawTree(); highlight(navPath); }, 100);
+});
+
+requestAnimationFrame(() => {
+  drawTree();
+  highlight([]);
+  updateOutput();
+});
+</script>
+</body>
+</html>
