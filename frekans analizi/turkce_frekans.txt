@@ -1,0 +1,34 @@
+a: 845847 adet
+b: 205093 adet
+c: 74492 adet
+d: 339364 adet
+e: 674705 adet
+f: 41608 adet
+g: 94747 adet
+h: 90889 adet
+i: 651823 adet
+j: 4850 adet
+k: 325912 adet
+l: 441383 adet
+m: 298177 adet
+n: 549248 adet
+o: 194992 adet
+p: 59523 adet
+q: 396 adet
+r: 493342 adet
+s: 233381 adet
+t: 257384 adet
+u: 237084 adet
+v: 70212 adet
+w: 3388 adet
+x: 1258 adet
+y: 241215 adet
+z: 107693 adet
+ç: 77571 adet
+ö: 53148 adet
+ü: 135831 adet
+ğ: 73175 adet
+ı: 315106 adet
+ş: 105094 adet
+
+
