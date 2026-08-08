@@ -57,4 +57,4 @@ https://bolatonur.github.io/turkce-mors/
 
 Projenin yöntemi, kullanılan algoritmalar, frekans analizleri ve test sonuçları sunum içerisinde daha detaylı olarak anlatılmıştır.
 
-[Proje Sunumunu Görüntüle](sunum\Mors_Cozumleme_Agacinin_Turkceye_Optimizasyonu.pdf)
+[Proje Sunumunu Görüntüle](sunum/Mors_Cozumleme_Agacinin_Turkceye_Optimizasyonu.pdf)
